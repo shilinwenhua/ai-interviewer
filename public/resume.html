@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刘思成 - AI应用产品经理</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0c;
+            --bg-card: rgba(255,255,255,0.02);
+            --border: #2a2a2e;
+            --gold: #d4af37;
+            --gold-light: #f4d03f;
+            --text: #e5e5e5;
+            --text-dim: #888;
+        }
+        body { 
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+        
+        /* Hero */
+        .hero {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+            margin-bottom: 48px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--bg);
+            flex-shrink: 0;
+        }
+        .hero-content { flex: 1; }
+        .name { 
+            font-family: 'Noto Serif SC', serif;
+            font-size: 36px; 
+            font-weight: 700; 
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff, var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .title { 
+            font-size: 20px; 
+            color: var(--gold);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        .contact { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+        .contact span { display: flex; align-items: center; gap: 6px; }
+        
+        /* Sections */
+        .section { margin-bottom: 40px; }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+        
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(244,208,63,0.05));
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+        .highlight-box h3 {
+            font-size: 18px;
+            color: var(--gold-light);
+            margin-bottom: 12px;
+        }
+        .highlight-box p {
+            color: var(--text-dim);
+            font-size: 15px;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            border-color: var(--gold);
+            background: rgba(212,175,55,0.03);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .card-title { font-size: 18px; font-weight: 600; color: #fff; }
+        .card-company { color: var(--gold); font-size: 14px; margin-top: 4px; }
+        .card-time { font-size: 13px; color: var(--text-dim); }
+        .card-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .tag {
+            padding: 4px 12px;
+            background: rgba(212,175,55,0.1);
+            color: var(--gold);
+            font-size: 12px;
+            border-radius: 20px;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+        
+        /* Skills */
+        .skills { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+        .skill.gold {
+            background: rgba(212,175,55,0.1);
+            border-color: rgba(212,175,55,0.3);
+            color: var(--gold);
+        }
+        
+        /* Project Link */
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--bg);
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        .project-link:hover { transform: scale(1.02); }
+        
+        /* AI Badge */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--bg);
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            margin-left: 12px;
+        }
+        
+        @media (max-width: 640px) {
+            .hero { flex-direction: column; gap: 20px; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .name { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="avatar">刘</div>
+            <div class="hero-content">
+                <h1 class="name">刘思成</h1>
+                <p class="title">AI应用产品经理 <span class="ai-badge">AI Agent</span></p>
+                <div class="contact">
+                    <span>📍 北京</span>
+                    <span>📱 186-1281-3123</span>
+                    <span>✉️ StevenScc@hotmail.com</span>
+                    <span>🔗 github.com/shilinwenhua</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num">10年+</div>
+                <div class="stat-label">产品经验</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">¥100万</div>
+                <div class="stat-label">单日营收峰值</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">$150万</div>
+                <div class="stat-label">项目退出</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">500万+</div>
+                <div class="stat-label">用户获取</div>
+            </div>
+        </div>
+        
+        <!-- 个人定位 -->
+        <div class="highlight-box">
+            <h3>🎯 个人定位</h3>
+            <p><strong>AI应用产品化操盘手</strong> — 擅长将 AI 能力快速转化为可变现产品</p>
+            <p style="margin-top: 8px;">深耕 LLM 应用场景，精通 AI Agent 交互设计。擅长 AI + 社交/娱乐产品化，曾主导项目实现<strong>单日百万级充值</strong>，具备从 0-1 创业到千万级并购退出经验。</p>
+        </div>
+        
+        <!-- 核心优势 -->
+        <div class="section">
+            <div class="section-title">核心优势</div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🤖 AI 应用产品化</div>
+                        <div class="card-company">将 AI 能力快速封装成用户产品</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px;">熟练使用 OpenClaw、Claude Code、Cursor 等 AI 工具构建 Agent 应用。擅长 AI + 场景结合，能快速验证 PMF 并实现商业变现。</p>
+                <div class="card-tags">
+                    <span class="tag">AI Agent</span>
+                    <span class="tag">LLM 应用</span>
+                    <span class="tag">Prompt 工程</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">💰 商业化变现</div>
+                        <div class="card-company">虚拟礼物、AI 陪伴付费点设计</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px;">深度理解用户付费动机，核心模块营收占比从 <strong>30% → 55%</strong>。擅长在用户体验与营收间找到平衡点。</p>
+                <div class="card-tags">
+                    <span class="tag">LTV/CAC</span>
+                    <span class="tag">ARPU</span>
+                    <span class="tag">付费转化</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🌍 全球化业务操盘</div>
+                        <div class="card-company">多区域团队管理与跨境退出</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px;">统筹南美、南亚、港台、中东等多区域团队，建立统一国际化指标体系。以 <strong>$150万</strong> 完成项目整体退出。</p>
+                <div class="card-tags">
+                    <span class="tag">出海</span>
+                    <span class="tag">跨文化团队</span>
+                    <span class="tag">并购退出</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI 项目实战 -->
+        <div class="section">
+            <div class="section-title">AI 项目实战</div>
+            
+            <div class="card" style="border-color: var(--gold); background: rgba(212,175,55,0.05);">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🧑‍💻 AI 模拟面试产品</div>
+                        <div class="card-company">个人独立开发 • 已上线运营</div>
+                    </div>
+                    <span class="ai-badge" style="margin: 0;">LIVE</span>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 12px;">
+                    AI Agent 驱动的面试模拟产品。用户选择目标岗位后，AI 扮演面试官进行实时问答，并提供针对性反馈。
+                </p>
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 16px;">
+                    <strong style="color: var(--gold);">技术栈：</strong>React + Vite + Framer Motion + OpenAI API
+                </p>
+                <a href="https://ai-interviewer-v1-nu.vercel.app" target="_blank" class="project-link">
+                    查看项目 →
+                </a>
+                <div class="card-tags" style="margin-top: 16px;">
+                    <span class="tag">AI Agent</span>
+                    <span class="tag">面试辅导</span>
+                    <span class="tag">LLM 应用</span>
+                    <span class="tag">Vercel 部署</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🔧 AI 工作流自动化</div>
+                        <div class="card-company">使用 OpenClaw 构建</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px;">
+                    使用 OpenClaw 构建自动化工作流，实现需求文档自动生成、代码审查自动化，将开发周期压缩 <strong>50%</strong>。践行"一人公司"模式，用 AI 工具实现极致人效。
+                </p>
+                <div class="card-tags">
+                    <span class="tag">OpenClaw</span>
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">Cursor</span>
+                    <span class="tag">自动化</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">🎙️ AI 语音房产品设计</div>
+                        <div class="card-company">创业项目探索</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px;">
+                    探索 AI + 语音房模式，设计激励机制稳定内容供给，构建推荐算法模型。在用户体验与营收间取得平衡，为产品增长提供新方向。
+                </p>
+                <div class="card-tags">
+                    <span class="tag">AI + 社交</span>
+                    <span class="tag">推荐系统</span>
+                    <span class="tag">增长策略</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 工作经历 -->
+        <div class="section">
+            <div class="section-title">工作经历</div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">创始人 & 产品负责人</div>
+                        <div class="card-company">音络语音 / 达达语音 / OO派对</div>
+                    </div>
+                    <div class="card-time">2023.04 - 2025.11</div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 12px;">
+                    主导创业项目<strong>从 0-1 商业化</strong>，峰值单日充值<strong>百万级</strong>。统筹产品、技术、运营多团队，跨部门推进项目落地。
+                </p>
+                <ul style="color: var(--text-dim); font-size: 14px; padding-left: 20px;">
+                    <li>在现金流稳定状态下以 <strong>$150万</strong> 整体出售给菲律宾 SM 集团</li>
+                    <li>游戏业务日均流水数百万级，探索 AI + 语音房模式</li>
+                    <li>用 AI 工具快速验证产品原型，<strong>压缩 50% 开发周期</strong></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">全球商业化负责人</div>
+                        <div class="card-company">Uplive 直播</div>
+                    </div>
+                    <div class="card-time">2022.05 - 2024.03</div>
+                </div>
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 12px;">
+                    直接对公司级核心营收结果负责，管理协同南美、南亚、港台、中东等多区域团队。
+                </p>
+                <ul style="color: var(--text-dim); font-size: 14px; padding-left: 20px;">
+                    <li>核心营收模块占比：<strong>30% → 55%</strong></li>
+                    <li>平台整体充值规模：<strong>20%+ 提升</strong></li>
+                    <li>通过算法优化，LTV 与留存显著提升，用户平均出价下降 10%</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">用户增长负责人</div>
+                        <div class="card-company">玩吧</div>
+                    </div>
+                    <div class="card-time">2020.04 - 2022.05</div>
+                </div>
+                <ul style="color: var(--text-dim); font-size: 14px; padding-left: 20px;">
+                    <li>负责用户全生命周期增长（获客/留存/付费/召回），带领 7 人团队</li>
+                    <li>单位买量回本周期：<strong>200天 → 170天</strong></li>
+                    <li>累计获取 <strong>500万+</strong> 用户</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">产品经理</div>
+                        <div class="card-company">玖富集团 - 玖富万卡事业部</div>
+                    </div>
+                    <div class="card-time">2016.07 - 2020.04</div>
+                </div>
+                <ul style="color: var(--text-dim); font-size: 14px; padding-left: 20px;">
+                    <li>负责用户增长、留存及授信转化策略</li>
+                    <li>核心路径转化率提升 <strong>58%</strong></li>
+                    <li>主导千万级裂变与营销项目</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 技能 -->
+        <div class="section">
+            <div class="section-title">技能标签</div>
+            <div class="skills">
+                <span class="skill gold">AI Agent</span>
+                <span class="skill gold">LLM 应用</span>
+                <span class="skill gold">OpenClaw</span>
+                <span class="skill gold">Claude Code</span>
+                <span class="skill">Cursor</span>
+                <span class="skill">Prompt 工程</span>
+                <span class="skill">SQL</span>
+                <span class="skill">数据分析</span>
+                <span class="skill">全球化产品</span>
+                <span class="skill">商业化变现</span>
+                <span class="skill">社交产品</span>
+                <span class="skill">增长黑客</span>
+            </div>
+        </div>
+        
+        <!-- 教育 -->
+        <div class="section">
+            <div class="section-title">教育背景</div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">国家开放大学 | 计算机科学与技术</span>
+                    <span style="color: var(--text-dim); font-size: 14px;">2016 - 2018 | 本科</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-dim); font-size: 14px;">黑龙江建筑职业技术学院 | 网络工程与管理</span>
+                    <span style="color: var(--text-dim); font-size: 14px;">2013 - 2016 | 专科</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 求职意向 -->
+        <div class="section">
+            <div class="section-title">求职意向</div>
+            <div class="highlight-box" style="margin: 0;">
+                <p><strong>目标岗位：</strong>AI产品经理 | AI应用产品经理 | 商业化产品负责人</p>
+                <p style="margin-top: 8px;"><strong>期望领域：</strong>AIGC / AI应用 / 大模型产品 / 智能助手 / AI Agent</p>
+                <p style="margin-top: 8px;"><strong>核心优势：</strong>能快速将 AI 能力产品化并验证商业变现路径</p>
+            </div>
+        </div>
+        
+        <footer style="text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; border-top: 1px solid var(--border);">
+            <p>🤖 AI驱动 • 应用导向 • 商业变现</p>
+        </footer>
+    </div>
+</body>
+</html>
