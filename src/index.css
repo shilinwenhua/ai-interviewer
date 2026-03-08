@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 自定义样式 */
+.question-card {
+  @apply transition-all duration-200;
+}
+
+.question-card:hover {
+  @apply shadow-md;
+}
+
+.answer-content {
+  @apply border-l-4 border-blue-500 pl-4 mt-3 text-gray-600 dark:text-gray-300;
+}

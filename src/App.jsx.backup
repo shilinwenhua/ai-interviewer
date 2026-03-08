@@ -1,0 +1,289 @@
+// V6.1 完整社区版 - 带完整功能
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import LoginPage from './components/LoginPage'
+import AIInterviewPage from './components/AIInterviewPage'
+import InterviewHistory from './components/InterviewHistory'
+
+// 模拟数据库
+const mockDB = {
+  users: {
+    '1': { id: '1', nickname: 'AI产品经理', avatar: '🤖', points: 1250, level: 5, questions: 12, answers: 45 },
+    '2': { id: '2', nickname: '算法工程师', avatar: '👨‍💻', points: 2380, level: 8, questions: 8, answers: 120 },
+    '3': { id: '3', nickname: '数据分析师', avatar: '📊', points: 890, level: 3, questions: 5, answers: 28 },
+  },
+  picks: [
+    { id: 1, title: 'RAG系统的效果如何评估？', views: 128, likes: 32, category: 'AI基础', userId: '2', createdAt: '2小时前' },
+    { id: 2, title: 'AI产品和传统PM的核心差异是什么？', views: 95, likes: 28, category: '产品', userId: '1', createdAt: '3小时前' },
+    { id: 3, title: '如何设计一个推荐系统的MVP？', views: 87, likes: 24, category: '产品', userId: '1', createdAt: '5小时前' },
+    { id: 4, title: '大模型幻觉问题怎么解决？', views: 156, likes: 45, category: 'AI基础', userId: '2', createdAt: '1小时前' },
+    { id: 5, title: 'Transformer和RNN的区别？', views: 112, likes: 38, category: '算法', userId: '3', createdAt: '4小时前' },
+  ],
+  questions: [
+    { id: 1, title: '如何准备算法面试？', content: '我是一名应届生，想要求职AI产品经理，请问算法面试应该怎么准备？需要刷LeetCode吗？', answers: 52, hot: true, category: '面试', tags: ['算法', '初级'], userId: '1', views: 520, createdAt: '2小时前' },
+    { id: 2, title: '推荐系统入门书籍推荐', content: '想学习推荐系统，有哪些入门书籍推荐？最好有实战案例的。', answers: 38, hot: true, category: '书籍', tags: ['推荐系统', '入门'], userId: '2', views: 380, createdAt: '5小时前' },
+    { id: 3, title: '大模型幻觉问题怎么解决？', content: '在使用大模型时，经常会出现幻觉问题，有什么好的解决方法吗？', answers: 29, hot: true, category: '大模型', tags: ['工程', '中级'], userId: '3', views: 290, createdAt: '1小时前' },
+    { id: 4, title: 'RAG和微调的区别？', content: 'RAG和模型微调各有什么优缺点？什么场景下应该用哪种？', answers: 24, hot: false, category: 'AI基础', tags: ['RAG', '进阶'], userId: '2', views: 240, createdAt: '昨天' },
+    { id: 5, title: 'AI产品经理需要学算法吗？', content: '作为AI产品经理，需要掌握算法知识吗？需要深入到代码层面吗？', answers: 18, hot: false, category: '职业', tags: ['PM', '入门'], userId: '1', views: 180, createdAt: '昨天' },
+  ],
+  answers: {
+    1: [
+      { id: 1, questionId: 1, userId: '2', content: '作为过来人，我的建议是：\n\n1. 掌握基础数据结构\n2. 刷LeetCode简单题\n3. 看《算法图解》入门\n4. 重点掌握排序、查找、动态规划\n5. 了解机器学习基础概念', isAccepted: true, upvotes: 128, createdAt: '1小时前' },
+      { id: 2, questionId: 1, userId: '3', content: '补充一点，要多看AI产品实战项目。', isAccepted: false, upvotes: 45, createdAt: '30分钟前' },
+    ],
+  },
+  categories: ['面试', '产品', '算法', 'AI基础', '大模型', '书籍', '职业', '实战'],
+}
+
+function QuestionDetail({ question, onBack }) {
+  const [answers, setAnswers] = useState(mockDB.answers[question.id] || [])
+  const [newAnswer, setNewAnswer] = useState('')
+  const [upvotedAnswers, setUpvotedAnswers] = useState([])
+  
+  const questionUser = mockDB.users[question.userId]
+  
+  const handleSubmitAnswer = () => {
+    if (!newAnswer.trim()) return
+    const answer = { id: Date.now(), questionId: question.id, userId: '1', content: newAnswer, isAccepted: false, upvotes: 0, createdAt: '刚刚' }
+    setAnswers([...answers, answer])
+    setNewAnswer('')
+  }
+  
+  const handleUpvote = (answerId) => {
+    if (upvotedAnswers.includes(answerId)) {
+      setUpvotedAnswers(upvotedAnswers.filter(id => id !== answerId))
+      setAnswers(answers.map(a => a.id === answerId ? { ...a, upvotes: a.upvotes - 1 } : a))
+    } else {
+      setUpvotedAnswers([...upvotedAnswers, answerId])
+      setAnswers(answers.map(a => a.id === answerId ? { ...a, upvotes: a.upvotes + 1 } : a))
+    }
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-24">
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+        返回
+      </button>
+      
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          {question.hot && <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 rounded-full text-xs flex items-center gap-1"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></span>热帖</span>}
+          <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded-full text-xs">{question.category}</span>
+        </div>
+        <h1 className="text-xl font-bold mb-4">{question.title}</h1>
+        {question.content && <p className="text-slate-300 mb-4">{question.content}</p>}
+        <div className="flex flex-wrap gap-2 mb-4">{question.tags?.map(tag => <span key={tag} className="px-2 py-0.5 bg-white/5 rounded text-xs text-slate-400">{tag}</span>)}</div>
+        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-sm">{questionUser?.avatar}</div>
+            <div><div className="text-sm">{questionUser?.nickname}</div><div className="text-xs text-slate-500">{question.createdAt}</div></div>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-slate-500">
+            <span>👁 {question.views}</span><span>{question.answers}回答</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mb-6">
+        <h2 className="font-bold mb-4">💬 {answers.length}个回答</h2>
+        <div className="space-y-4">
+          {answers.map(answer => {
+            const answerUser = mockDB.users[answer.userId]
+            const isUpvoted = upvotedAnswers.includes(answer.id)
+            return (
+              <div key={answer.id} className={`p-4 rounded-2xl border ${answer.isAccepted ? 'bg-green-500/10 border-green-500/30' : 'bg-white/5 border-white/10'}`}>
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col items-center gap-1">
+                    <button onClick={() => handleUpvote(answer.id)} className={`p-1 rounded ${isUpvoted ? 'text-orange-400' : 'text-slate-500'}`}>
+                      <svg className="w-5 h-5" fill={isUpvoted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path></svg>
+                    </button>
+                    <span className={`text-sm font-bold ${isUpvoted ? 'text-orange-400' : 'text-slate-400'}`}>{answer.upvotes}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-xs">{answerUser?.avatar}</div>
+                      <span className="text-sm">{answerUser?.nickname}</span>
+                      {answer.isAccepted && <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs">✅ 最佳回答</span>}
+                      <span className="text-xs text-slate-500">{answer.createdAt}</span>
+                    </div>
+                    <p className="text-slate-300">{answer.content}</p>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0A0A0F]/90 backdrop-blur-xl border-t border-white/10">
+        <div className="max-w-2xl mx-auto flex gap-3">
+          <input type="text" value={newAnswer} onChange={(e) => setNewAnswer(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSubmitAnswer()} placeholder="写回答..." className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500" />
+          <button onClick={handleSubmitAnswer} disabled={!newAnswer.trim()} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-xl font-medium disabled:opacity-50">回答</button>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+function AskPage({ onBack, onSubmit }) {
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [category, setCategory] = useState('')
+  const [tags, setTags] = useState('')
+  
+  const handleSubmit = () => {
+    if (!title.trim()) return
+    onSubmit({ id: Date.now(), title, content, category: category || '产品', tags: tags.split(',').map(t => t.trim()).filter(Boolean), answers: 0, hot: false, views: 0, createdAt: '刚刚', userId: '1' })
+  }
+  
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>返回</button>
+      <h1 className="text-xl font-bold mb-6">💡 提问</h1>
+      <div className="space-y-4">
+        <div><label className="block text-sm text-slate-400 mb-2">问题标题</label><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="用一句话描述你的问题" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500" /></div>
+        <div><label className="block text-sm text-slate-400 mb-2">问题描述</label><textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="详细描述你的问题..." rows={6} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 resize-none" /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm text-slate-400 mb-2">分类</label><select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white"><option value="">选择分类</option>{mockDB.categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}</select></div>
+          <div><label className="block text-sm text-slate-400 mb-2">标签</label><input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="用逗号分隔" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500" /></div>
+        </div>
+        <button onClick={handleSubmit} disabled={!title.trim()} className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-xl font-medium disabled:opacity-50 mt-6">发布问题</button>
+      </div>
+    </motion.div>
+  )
+}
+
+function ProfilePage({ user, onBack, onLogout, onViewHistory }) {
+  const userData = mockDB.users['1']
+  
+  // 获取面试记录数量
+  const interviewCount = JSON.parse(localStorage.getItem('interview_history') || '[]').length
+  
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>返回</button>
+      <div className="text-center mb-8">
+        <div className="relative inline-flex mb-4"><div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full blur-xl opacity-50"></div><div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-4xl">{userData.avatar}</div></div>
+        <h2 className="text-xl font-bold mb-1">{userData.nickname}</h2>
+        <p className="text-slate-500 text-sm mb-4">L{userData.level} · {userData.points}积分</p>
+        <div className="flex justify-center gap-8 py-4">
+          <div className="text-center"><div className="text-2xl font-bold text-indigo-400">{userData.questions}</div><div className="text-xs text-slate-500">提问</div></div>
+          <div className="text-center"><div className="text-2xl font-bold text-violet-400">{userData.answers}</div><div className="text-xs text-slate-500">回答</div></div>
+          <div className="text-center"><div className="text-2xl font-bold text-cyan-400">{userData.points}</div><div className="text-xs text-slate-500">积分</div></div>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {/* 面试记录入口 */}
+        <button onClick={onViewHistory} className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 rounded-xl hover:from-indigo-500/30 hover:to-violet-500/30">
+          <div className="flex items-center gap-3"><span className="text-xl">🎯</span><span className="font-medium">AI面试记录</span></div>
+          <div className="flex items-center gap-2"><span className="px-2 py-0.5 bg-indigo-500 text-white rounded-full text-xs">{interviewCount}</span><span className="text-slate-400">→</span></div>
+        </button>
+        
+        {[{ icon: '📝', label: '我的提问', count: 12 }, { icon: '💬', label: '我的回答', count: 45 }, { icon: '⭐', label: '我的收藏', count: 12 }, { icon: '👍', label: '我的点赞', count: 45 }, { icon: '⚙️', label: '设置', count: null }].map((item, idx) => (
+          <button key={idx} className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10"><div className="flex items-center gap-3"><span className="text-xl">{item.icon}</span><span>{item.label}</span></div><div className="flex items-center gap-2">{item.count !== null && <span className="text-slate-500">{item.count}</span>}</div></button>
+        ))}
+        <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 p-4 mt-8 text-red-400 hover:bg-red-500/10 rounded-xl"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2h4v1"></path></svg>退出登录</button>
+      </div>
+    </motion.div>
+  )
+}
+
+function App() {
+  const [page, setPage] = useState('login')
+  const [user, setUser] = useState(null)
+  const [activeTab, setActiveTab] = useState('picks')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedQuestion, setSelectedQuestion] = useState(null)
+  const [questions, setQuestions] = useState(mockDB.questions)
+  const tabs = [{ key: 'picks', label: '🎯 精选' }, { key: 'all', label: '📚 全部' }, { key: 'community', label: '💬 社区' }]
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
+  const tabRefs = useRef({})
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('ai-interviewer-user')
+    if (savedUser) { setUser(JSON.parse(savedUser)); setPage('home'); }
+  }, [])
+
+  useEffect(() => {
+    const activeTabEl = tabRefs.current[activeTab]
+    if (activeTabEl) setIndicatorStyle({ left: activeTabEl.offsetLeft, width: activeTabEl.offsetWidth })
+  }, [activeTab])
+
+  const handleLogin = (userData) => {
+    const fullUser = { ...userData, id: '1', nickname: userData.nickname || 'AI产品经理' }
+    setUser(fullUser); localStorage.setItem('ai-interviewer-user', JSON.stringify(fullUser)); setPage('home')
+  }
+  const handleLogout = () => { setUser(null); setPage('login'); setActiveTab('picks'); localStorage.removeItem('ai-interviewer-user') }
+  const handleQuestionClick = (question) => { setSelectedQuestion(question); setPage('question') }
+  const handleAskSubmit = (newQuestion) => { setQuestions([newQuestion, ...questions]); setPage('home'); setActiveTab('community') }
+  const filteredQuestions = searchQuery ? questions.filter(q => q.title.includes(searchQuery) || q.content?.includes(searchQuery)) : questions
+
+  if (page === 'login') return <LoginPage onLogin={handleLogin} onGoToRegister={() => {}} />
+  if (page === 'interview') return <AIInterviewPage onBack={() => setPage('home')} />
+  if (page === 'question' && selectedQuestion) return <div className="min-h-screen bg-[#0A0A0F]"><header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#0A0A0F]/80 border-b border-white/5"><div className="max-w-2xl mx-auto px-4 py-4"><QuestionDetail question={selectedQuestion} onBack={() => { setPage('home'); setSelectedQuestion(null) }} /></div></header></div>
+  if (page === 'ask') return <div className="min-h-screen bg-[#0A0A0F]"><header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#0A0A0F]/80 border-b border-white/5"><div className="max-w-2xl mx-auto px-4 py-4"><AskPage onBack={() => setPage('home')} onSubmit={handleAskSubmit} /></div></header></div>
+  if (page === 'profile') return <div className="min-h-screen bg-[#0A0A0F]"><header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#0A0A0F]/80 border-b border-white/5"><div className="max-w-2xl mx-auto px-4 py-4"><ProfilePage user={user} onBack={() => setPage('home')} onLogout={handleLogout} onViewHistory={() => setPage('history')} /></div></header></div>
+  if (page === 'history') return <InterviewHistory onBack={() => setPage('profile')} />
+
+  return (
+    <div className="min-h-screen bg-[#0A0A0F] text-white">
+      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#0A0A0F]/80 border-b border-white/5">
+        <div className="max-w-2xl mx-auto px-4 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="relative"><div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-xl blur-lg opacity-50"></div><div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center"><span className="text-xl">🤖</span></div></div>
+              <div><h1 className="font-bold text-lg">AI面试题库</h1><p className="text-xs text-slate-500">V6.1 社区版</p></div>
+            </div>
+            <button onClick={() => setPage('profile')} className="p-2 rounded-lg hover:bg-white/5"><div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center"><span>{user?.nickname?.[0] || '🤖'}</span></div></button>
+          </div>
+          <div className="relative mb-4"><svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg><input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="搜索问题..." className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-slate-500" /></div>
+          
+          {/* AI面试入口 */}
+          <button 
+            onClick={() => setPage('interview')}
+            className="w-full mb-4 py-3 bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-500 rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            <span>🎯</span>
+            <span>AI模拟面试 - 实时点评</span>
+          </button>
+          
+          <div className="relative flex gap-1 p-1 bg-white/5 rounded-xl">
+            <motion.div layout transition={{ type: "spring", stiffness: 500, damping: 30 }} className="absolute top-1 bottom-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-500 rounded-lg shadow-lg shadow-indigo-500/30" style={{ left: indicatorStyle.left, width: indicatorStyle.width }} />
+            {tabs.map(tab => <button key={tab.key} ref={el => tabRefs.current[tab.key] = el} onClick={() => setActiveTab(tab.key)} className={`relative z-10 flex-1 py-2 px-2 rounded-lg text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-slate-400'}`}>{tab.label}</button>)}
+          </div>
+        </div>
+      </header>
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        <AnimatePresence mode="wait">
+          {activeTab === 'picks' && (
+            <motion.div key="picks" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <div className="flex items-center gap-3 mb-6"><div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center"><span className="text-lg">📌</span></div><div><h2 className="font-bold text-lg">今日精选</h2><p className="text-xs text-slate-500">每天更新</p></div></div>
+              <div className="space-y-3">
+                {mockDB.picks.map((item, idx) => <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} whileHover={{ scale: 1.01, x: 4 }} onClick={() => handleQuestionClick(item)} className="group p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-indigo-500/30 hover:bg-white/10 transition-all cursor-pointer"><div className="flex items-start justify-between"><div className="flex-1"><div className="flex items-center gap-2 mb-2"><span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded-full text-xs">{item.category}</span></div><h3 className="font-medium">{item.title}</h3></div><div className="text-2xl opacity-0 group-hover:opacity-100">→</div></div><div className="flex items-center gap-4 mt-3 text-xs text-slate-500"><span>👁 {item.views}</span><span>❤️ {item.likes}</span></div></motion.div>)}
+              </div>
+            </motion.div>
+          )}
+          {activeTab === 'community' && (
+            <motion.div key="community" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <div className="flex items-center justify-between mb-6"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center"><span className="text-lg">🔥</span></div><div><h2 className="font-bold text-lg">社区热榜</h2><p className="text-xs text-slate-500">最活跃讨论</p></div></div><button onClick={() => setPage('ask')} className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-lg text-sm font-medium">提问</button></div>
+              <div className="space-y-3">
+                {filteredQuestions.map((item, idx) => <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} whileHover={{ scale: 1.01, x: 4 }} onClick={() => handleQuestionClick(item)} className="group p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-rose-500/30 hover:bg-white/10 transition-all cursor-pointer"><div className="flex items-start gap-3"><div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${idx < 3 ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white' : 'bg-white/10 text-slate-400'}`}>{idx + 1}</div><div className="flex-1"><div className="flex items-center gap-2 mb-2">{item.hot && <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 rounded-full text-xs flex items-center gap-1"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></span>热帖</span>}<span className="px-2 py-0.5 bg-slate-700 text-slate-300 rounded-full text-xs">{item.category}</span></div><h3 className="font-medium group-hover:text-rose-400">{item.title}</h3><div className="flex gap-1 mt-2">{item.tags?.map(tag => <span key={tag} className="px-2 py-0.5 bg-white/5 rounded text-xs text-slate-500">{tag}</span>)}</div></div><div className="text-right"><div className="text-lg font-bold text-slate-400">{item.answers}</div><div className="text-xs text-slate-500">回答</div></div></div></motion.div>)}
+              </div>
+            </motion.div>
+          )}
+          {activeTab === 'all' && (
+            <motion.div key="all" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <div className="flex items-center gap-3 mb-6"><div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center"><span className="text-lg">📚</span></div><div><h2 className="font-bold text-lg">全部题库</h2><p className="text-xs text-slate-500">所有题目</p></div></div>
+              <div className="space-y-3">
+                {filteredQuestions.map((item, idx) => <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.05 }} onClick={() => handleQuestionClick(item)} className="p-4 bg-white/5 border border-white/10 rounded-2xl cursor-pointer hover:bg-white/10"><h3 className="font-medium">{item.title}</h3><div className="flex items-center gap-2 mt-2 text-xs text-slate-500"><span>{item.category}</span><span>·</span><span>{item.answers}回答</span></div></motion.div>)}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+    </div>
+  )
+}
+
+export default App
